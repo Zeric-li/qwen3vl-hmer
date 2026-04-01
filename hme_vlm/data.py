@@ -6,7 +6,6 @@ from typing import Any
 from datasets import load_dataset
 from PIL import Image
 import torch
-from qwen_vl_utils import process_vision_info
 
 
 @dataclass
@@ -65,58 +64,7 @@ class QwenVLTrainCollator:
         self.user_prompt = user_prompt
 
     def __call__(self, features: list[dict[str, Any]]) -> dict[str, torch.Tensor]:
-        texts: list[str] = []
-        images = []
-        prompt_lengths: list[int] = []
-
-        for feature in features:
-            image = feature["image"].convert("RGB")
-            gold = feature["latex"]
-
-            full_messages = build_train_messages(
-                image=image,
-                answer_text=gold,
-                system_prompt=self.system_prompt,
-                user_prompt=self.user_prompt,
-            )
-            prompt_messages = build_prompt_messages(
-                image=image,
-                system_prompt=self.system_prompt,
-                user_prompt=self.user_prompt,
-            )
-
-            full_text = self.processor.apply_chat_template(
-                full_messages,
-                tokenize=False,
-                add_generation_prompt=False,
-            )
-            prompt_text = self.processor.apply_chat_template(
-                prompt_messages,
-                tokenize=False,
-                add_generation_prompt=True,
-            )
-
-            full_image_inputs, _ = process_vision_info(full_messages)
-            prompt_image_inputs, _ = process_vision_info(prompt_messages)
-
-            full_enc = self.processor(
-                text=[full_text],
-                images=full_image_inputs,
-                padding=False,
-                return_tensors="pt",
-            )
-            prompt_enc = self.processor(
-                text=[prompt_text],
-                images=prompt_image_inputs,
-                padding=False,
-                return_tensors="pt",
-            )
-
-            prompt_len = int(prompt_enc["input_ids"].shape[1])
-            prompt_lengths.append(prompt_len)
-
-            texts.append(full_text)
-            images.append(image)
+        from qwen_vl_utils import process_vision_info
 
         batch_messages = [
             build_train_messages(
@@ -127,28 +75,54 @@ class QwenVLTrainCollator:
             )
             for feature in features
         ]
-        batch_texts = [
-            self.processor.apply_chat_template(m, tokenize=False, add_generation_prompt=False)
-            for m in batch_messages
+        prompt_messages = [
+            build_prompt_messages(
+                image=feature["image"].convert("RGB"),
+                system_prompt=self.system_prompt,
+                user_prompt=self.user_prompt,
+            )
+            for feature in features
         ]
-        batch_image_inputs, batch_video_inputs = process_vision_info(batch_messages)
+
+        full_texts = [
+            self.processor.apply_chat_template(message, tokenize=False, add_generation_prompt=False)
+            for message in batch_messages
+        ]
+        prompt_texts = [
+            self.processor.apply_chat_template(message, tokenize=False, add_generation_prompt=True)
+            for message in prompt_messages
+        ]
+
+        full_image_inputs, full_video_inputs = process_vision_info(batch_messages)
+        prompt_image_inputs, prompt_video_inputs = process_vision_info(prompt_messages)
 
         batch = self.processor(
-            text=batch_texts,
-            images=batch_image_inputs,
-            videos=batch_video_inputs,
+            text=full_texts,
+            images=full_image_inputs,
+            videos=full_video_inputs,
             padding=True,
             return_tensors="pt",
         )
         batch.pop("token_type_ids", None)
+
+        prompt_batch = self.processor(
+            text=prompt_texts,
+            images=prompt_image_inputs,
+            videos=prompt_video_inputs,
+            padding=True,
+            return_tensors="pt",
+        )
+        prompt_batch.pop("token_type_ids", None)
 
         labels = batch["input_ids"].clone()
         pad_token_id = self.processor.tokenizer.pad_token_id
         if pad_token_id is not None:
             labels[labels == pad_token_id] = -100
 
-        for i, prompt_len in enumerate(prompt_lengths):
-            labels[i, :prompt_len] = -100
+        prompt_attention_mask = prompt_batch["attention_mask"]
+        for row_index in range(labels.shape[0]):
+            prompt_length = int(prompt_attention_mask[row_index].sum().item())
+            labels[row_index, :prompt_length] = -100
 
         batch["labels"] = labels
         return batch
@@ -161,6 +135,8 @@ class QwenVLInferenceCollator:
         self.user_prompt = user_prompt
 
     def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
+        from qwen_vl_utils import process_vision_info
+
         messages = [
             build_prompt_messages(
                 image=feature["image"].convert("RGB"),

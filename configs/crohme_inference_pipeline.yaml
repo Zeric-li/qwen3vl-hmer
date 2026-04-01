@@ -1,0 +1,32 @@
+pipeline_type: inference_only
+
+model_id: Qwen/Qwen3-VL-4B-Instruct
+output_dir: ./outputs/qwen3vl-crohme-base
+run_name: qwen3vl-crohme-base
+
+eval_dataset_id: Neeze/CROHME-full
+eval_splits:
+  - "2014"
+  - "2016"
+  - "2019"
+
+max_eval_samples: null
+cdm_toolkit_path: ./external/UniMERNet/cdm
+cdm_pools: 8
+seed: 42
+
+system_prompt: >-
+  You are a precise handwritten mathematical expression OCR system.
+  Output only the expression content itself, with no surrounding formatting or wrapper symbols.
+
+user_prompt: >-
+  Print the raw LaTeX sequence presented in the image.
+  Do not wrap the answer in markdown or LaTeX fences.
+  Do not add any text, spaces before or after.
+
+min_pixels: 200704
+max_pixels: 602112
+max_new_tokens: 128
+
+torch_dtype: bfloat16
+attn_implementation: flash_attention_2

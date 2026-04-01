@@ -1,4 +1,5 @@
 torch
+torchvision
 transformers
 accelerate>=1.0.0
 datasets>=3.0.0
@@ -6,7 +7,11 @@ peft>=0.13.0
 Pillow
 pandas
 matplotlib
+numpy<2.0.0
+scikit-image<=0.20.0
+opencv-python
 tqdm
 PyYAML
 qwen-vl-utils
-math-verify[antlr4_13_2]
+math-verify[antlr4_13_2]>=0.8.1,<1.0
+pytest

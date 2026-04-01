@@ -14,6 +14,18 @@ from hme_vlm.data import load_hf_hme_records, QwenVLTrainCollator
 from hme_vlm.modeling import load_model_for_lora, load_processor
 
 
+def resolve_train_eval_split(config: dict) -> str:
+    eval_split = config.get("train_eval_split") or config.get("eval_split")
+    if eval_split:
+        return str(eval_split)
+
+    eval_splits = config.get("eval_splits") or []
+    if eval_splits:
+        return str(eval_splits[0])
+
+    raise ValueError("Config must define one of: train_eval_split, eval_split, or eval_splits.")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True)
@@ -49,9 +61,10 @@ def main() -> None:
         shuffle=config.get("shuffle_train", True),
         seed=config["seed"],
     )
+    train_eval_split = resolve_train_eval_split(config)
     eval_records = load_hf_hme_records(
         dataset_id=config["eval_dataset_id"],
-        split=config["eval_split"],
+        split=train_eval_split,
         max_samples=config.get("max_eval_samples"),
         shuffle=False,
         seed=config["seed"],
