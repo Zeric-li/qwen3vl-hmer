@@ -45,14 +45,11 @@ def collect_split_rows(eval_dirs: list[Path]) -> tuple[list[dict[str, object]], 
                 "split": split_name,
                 "eval_dir": str(eval_dir),
                 "num_samples": int(metrics["num_samples"]),
-                "exact_match_rate": float(metrics["primary_metrics"]["exact_match_rate"]),
-                "math_verify_rate": float(metrics["primary_metrics"]["math_verify_rate"]),
-                "cdm_exp_rate": float(metrics["primary_metrics"]["cdm_exp_rate"]),
-                "avg_cer": float(metrics["text_metrics"]["avg_cer"]),
-                "avg_edit_score": float(metrics["text_metrics"]["avg_edit_score"]),
-                "avg_bleu4": float(metrics["text_metrics"]["avg_bleu4"]),
-                "avg_cdm_f1": float(metrics["text_metrics"]["avg_cdm_f1"]),
-                "avg_latency_s": float(metrics["runtime_metrics"]["avg_latency_s"]),
+                "exact_match_rate": float(metrics["exact_match_rate"]),
+                "avg_cer": float(metrics["avg_cer"]),
+                "avg_edit_score": float(metrics["avg_edit_score"]),
+                "avg_bleu4": float(metrics["avg_bleu4"]),
+                "avg_latency_s": float(metrics["avg_latency_s"]),
             }
         )
 
@@ -67,38 +64,15 @@ def collect_split_rows(eval_dirs: list[Path]) -> tuple[list[dict[str, object]], 
 
 
 def build_overall_metrics(evaluated_df: pd.DataFrame, split_rows: list[dict[str, object]]) -> dict[str, object]:
-    runtime_versions: dict[str, object] = {}
-    if split_rows:
-        first_metrics = load_json(Path(split_rows[0]["eval_dir"]) / "metrics.json")
-        runtime_versions = first_metrics["runtime_metrics"].get("runtime_versions", {})
-
     return {
         "num_splits": len(split_rows),
         "num_samples": int(len(evaluated_df)),
         "evaluated_splits": [row["split"] for row in split_rows],
-        "primary_metrics": {
-            "exact_match_rate": float(evaluated_df["exact_match"].mean()),
-            "math_verify_rate": float(evaluated_df["math_verify_match"].mean()),
-            "cdm_exp_rate": float(evaluated_df["cdm_match"].mean()),
-        },
-        "text_metrics": {
-            "avg_cer": float(evaluated_df["cer"].mean()),
-            "avg_edit_score": float(evaluated_df["edit_score"].mean()),
-            "avg_bleu4": float(evaluated_df["bleu4"].mean()),
-            "avg_cdm_f1": float(evaluated_df["cdm_f1"].mean()),
-        },
-        "math_diagnostics": {
-            "gold_parse_ok_rate": float(evaluated_df["math_verify_gold_parse_ok"].mean()),
-            "pred_parse_ok_rate": float(evaluated_df["math_verify_pred_parse_ok"].mean()),
-            "verify_attempt_rate": float(evaluated_df["math_verify_verify_attempted"].mean()),
-            "timeout_rate": float(evaluated_df["math_verify_timeout"].mean()),
-            "avg_parse_latency_ms": float(evaluated_df["math_verify_parse_latency_ms"].mean()),
-            "avg_verify_latency_ms": float(evaluated_df["math_verify_verify_latency_ms"].mean()),
-        },
-        "runtime_metrics": {
-            "avg_latency_s": float(evaluated_df["latency_s"].mean()),
-            "runtime_versions": runtime_versions,
-        },
+        "exact_match_rate": float(evaluated_df["exact_match"].mean()),
+        "avg_cer": float(evaluated_df["cer"].mean()),
+        "avg_edit_score": float(evaluated_df["edit_score"].mean()),
+        "avg_bleu4": float(evaluated_df["bleu4"].mean()),
+        "avg_latency_s": float(evaluated_df["latency_s"].mean()),
     }
 
 

@@ -34,7 +34,6 @@ def main() -> None:
                 "error_bucket": bucket,
                 "count": int(len(group)),
                 "exact_match_rate": float(group["exact_match"].mean()),
-                "math_verify_rate": float(group["math_verify_match"].mean()),
                 "avg_cer": float(group["cer"].mean()),
                 "avg_bleu4": float(group["bleu4"].mean()),
             }

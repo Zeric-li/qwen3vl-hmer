@@ -21,8 +21,6 @@ print(config["model_id"])
 print(config["output_dir"])
 print(config.get("eval_dataset_id", config.get("train_dataset_id", "Neeze/CROHME-full")))
 print("" if config.get("max_eval_samples") is None else config["max_eval_samples"])
-print(config["cdm_toolkit_path"])
-print(config.get("cdm_pools", 1))
 for split in config.get("eval_splits", []):
     print(f"SPLIT::{split}")
 PY
@@ -32,12 +30,10 @@ MODEL_ID="${CONFIG_VALUES[0]}"
 OUTPUT_DIR="${CONFIG_VALUES[1]}"
 DATASET_ID="${CONFIG_VALUES[2]}"
 MAX_EVAL_SAMPLES="${CONFIG_VALUES[3]}"
-CDM_TOOLKIT_PATH="${CONFIG_VALUES[4]}"
-CDM_POOLS="${CONFIG_VALUES[5]}"
 
 EVAL_SPLITS=()
 EVAL_DIRS=()
-for value in "${CONFIG_VALUES[@]:6}"; do
+for value in "${CONFIG_VALUES[@]:4}"; do
   EVAL_SPLITS+=("${value#SPLIT::}")
 done
 
@@ -45,20 +41,6 @@ if [[ "${#EVAL_SPLITS[@]}" -eq 0 ]]; then
   echo "Config must define at least one eval_splits entry: ${CONFIG_PATH}" >&2
   exit 1
 fi
-
-if [[ ! -d "$CDM_TOOLKIT_PATH" ]]; then
-  echo "UniMERNet CDM toolkit not found: ${CDM_TOOLKIT_PATH}" >&2
-  echo "Clone UniMERNet to ./external/UniMERNet and install external/UniMERNet/cdm/requirements.txt." >&2
-  exit 1
-fi
-
-for required_cmd in node convert pdflatex; do
-  if ! command -v "$required_cmd" >/dev/null 2>&1; then
-    echo "Required command for UniMERNet CDM not found: ${required_cmd}" >&2
-    echo "Install Node.js, ImageMagick, and a LaTeX distribution before running evaluation." >&2
-    exit 1
-  fi
-done
 
 for EVAL_SPLIT in "${EVAL_SPLITS[@]}"; do
   EVAL_DIR="${OUTPUT_DIR}/base_model_eval_${EVAL_SPLIT}"
@@ -80,8 +62,6 @@ for EVAL_SPLIT in "${EVAL_SPLITS[@]}"; do
     python -m scripts.evaluate_predictions
     --predictions-csv "${EVAL_DIR}/raw_predictions.csv"
     --output-dir "$EVAL_DIR"
-    --cdm-toolkit-path "$CDM_TOOLKIT_PATH"
-    --cdm-pools "$CDM_POOLS"
   )
 
   echo "[Inference Pipeline] Running split ${EVAL_SPLIT} with model ${MODEL_ID}"
