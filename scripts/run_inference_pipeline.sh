@@ -21,6 +21,7 @@ print(config["model_id"])
 print(config["output_dir"])
 print(config.get("eval_dataset_id", config.get("train_dataset_id", "Neeze/CROHME-full")))
 print("" if config.get("max_eval_samples") is None else config["max_eval_samples"])
+print(config.get("eval_batch_size", 1))
 for split in config.get("eval_splits", []):
     print(f"SPLIT::{split}")
 PY
@@ -30,10 +31,11 @@ MODEL_ID="${CONFIG_VALUES[0]}"
 OUTPUT_DIR="${CONFIG_VALUES[1]}"
 DATASET_ID="${CONFIG_VALUES[2]}"
 MAX_EVAL_SAMPLES="${CONFIG_VALUES[3]}"
+EVAL_BATCH_SIZE="${CONFIG_VALUES[4]}"
 
 EVAL_SPLITS=()
 EVAL_DIRS=()
-for value in "${CONFIG_VALUES[@]:4}"; do
+for value in "${CONFIG_VALUES[@]:5}"; do
   EVAL_SPLITS+=("${value#SPLIT::}")
 done
 
@@ -49,7 +51,7 @@ for EVAL_SPLIT in "${EVAL_SPLITS[@]}"; do
     python -m scripts.run_inference
     --checkpoint "$MODEL_ID"
     --output-dir "$EVAL_DIR"
-    --batch-size "${BASE_EVAL_BATCH_SIZE:-1}"
+    --batch-size "${BASE_EVAL_BATCH_SIZE:-$EVAL_BATCH_SIZE}"
     --split "$EVAL_SPLIT"
     --config "$CONFIG_PATH"
     --dataset-id "$DATASET_ID"

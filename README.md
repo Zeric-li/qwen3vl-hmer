@@ -6,11 +6,10 @@ A minimal pure-Python project for supervised LoRA fine-tuning of `Qwen/Qwen3-VL-
 
 This project is intentionally small and direct:
 
-- one training script
-- one inference script
 - one evaluation script
+- one training script
 - one error-analysis script
-- one simple dataset adapter
+- one simple visualization script
 - explicit normalization and evaluator modules
 
 The default dataset target is `Neeze/CROHME-full` from Hugging Face.
@@ -18,13 +17,10 @@ The default dataset target is `Neeze/CROHME-full` from Hugging Face.
 ## Install
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
 pip install -r requirements.txt
 ```
 
-If `transformers` support for Qwen2.5-VL lags in your environment, install the latest version from source:
+If `transformers` support for Qwen3-VL lags in your environment, install the latest version from source:
 
 ```bash
 pip install -U "git+https://github.com/huggingface/transformers"
@@ -32,16 +28,15 @@ pip install -U "git+https://github.com/huggingface/transformers"
 
 ## Colab
 
-Use [crohme_colab_quickstart.ipynb](/home/zeric/projects/comp646/HME/notebooks/crohme_colab_quickstart.ipynb) to run either pipeline in Google Colab with a GPU runtime.
+Use [notebooks/crohme_colab_quickstart.ipynb](notebooks/crohme_colab_quickstart.ipynb) to run either pipeline in Google Colab with a GPU runtime.
 
 Minimal Colab flow:
 
 1. Open the notebook in a GPU runtime.
-2. Set `REPO_URL`.
-3. Choose `TASK = "inference_only"` or `TASK = "lora_train_eval"`.
-4. Run all cells.
+2. Choose `TASK = "inference_only"` or `TASK = "lora_train_eval"`.
+3. Run all cells.
 
-The notebook installs the Python dependencies for this repo, writes `configs/colab_<task>.yaml`, and runs the matching pipeline script under `scripts/`.
+The notebook installs the Python dependencies for this repo, writes `configs/colab_<task>.yaml`, runs the matching pipeline script under `scripts/`, then calls a visualization helper that generates and displays the result figures.
 
 ## Train
 
@@ -91,7 +86,7 @@ After all configured splits finish, the pipeline also writes an aggregated `over
 - `evaluated_predictions_all.csv`
 - `overall_bucket_metrics.json`
 
-You can turn those outputs into report-ready figures with:
+You can turn those outputs into visualized figures with:
 
 ```bash
 python -m scripts.generate_eval_report_figures \
@@ -124,7 +119,7 @@ The evaluation stack is aligned to CROHME-style tokenized LaTeX and matches the 
 
 ## External CDM
 
-This repo no longer runs UniMERNet CDM locally inside the default pipelines. If you want `ExpRate@CDM`, export the predictions and run the official UniMERNet evaluator in its own environment.
+If you want `ExpRate@CDM`, export the predictions and run the official UniMERNet evaluator in its own environment.
 
 `scripts.evaluate_predictions` now writes `unimernet_cdm_input.json` automatically. You can also export it manually:
 

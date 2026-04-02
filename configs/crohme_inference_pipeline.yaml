@@ -11,14 +11,14 @@ eval_splits:
   - "2019"
 
 max_eval_samples: null
+eval_batch_size: 1
 seed: 42
 
 system_prompt: >-
-  You are a precise handwritten mathematical expression OCR system.
-  Output only the expression content itself, with no surrounding formatting or wrapper symbols.
+  You are a precise handwritten mathematical expression recognition (HMER) system.
+  Extract and Print the expression of the formula in the image using LaTeX format. 
 
 user_prompt: >-
-  Print the raw LaTeX sequence presented in the image.
   Do not wrap the answer in markdown or LaTeX fences.
   Do not add any text, spaces before or after.
 

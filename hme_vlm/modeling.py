@@ -60,7 +60,13 @@ def load_model_for_lora(config: dict):
     return model
 
 
-def load_model_for_inference(model_id_or_adapter_path: str, min_pixels: int, max_pixels: int, torch_dtype: str):
+def load_model_for_inference(
+    model_id_or_adapter_path: str,
+    min_pixels: int,
+    max_pixels: int,
+    torch_dtype: str,
+    attn_implementation: str = "sdpa",
+):
     adapter_config_path = Path(model_id_or_adapter_path) / "adapter_config.json"
     is_adapter_path = adapter_config_path.exists()
 
@@ -73,6 +79,7 @@ def load_model_for_inference(model_id_or_adapter_path: str, min_pixels: int, max
             base_model_id,
             torch_dtype=resolve_torch_dtype(torch_dtype),
             device_map="auto",
+            attn_implementation=attn_implementation,
         )
         model = PeftModel.from_pretrained(base_model, model_id_or_adapter_path)
         processor = load_processor(base_model_id, min_pixels=min_pixels, max_pixels=max_pixels)
@@ -83,6 +90,7 @@ def load_model_for_inference(model_id_or_adapter_path: str, min_pixels: int, max
         model_id_or_adapter_path,
         torch_dtype=resolve_torch_dtype(torch_dtype),
         device_map="auto",
+        attn_implementation=attn_implementation,
     )
     processor = load_processor(model_id_or_adapter_path, min_pixels=min_pixels, max_pixels=max_pixels)
     return model, processor

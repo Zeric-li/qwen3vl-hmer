@@ -70,6 +70,7 @@ def load_inference_config(args: argparse.Namespace) -> tuple[dict[str, object], 
         min_pixels=config["min_pixels"],
         max_pixels=config["max_pixels"],
         torch_dtype=config["torch_dtype"],
+        attn_implementation=config.get("attn_implementation", "sdpa"),
     )
     return config, model, processor
 
@@ -85,7 +86,7 @@ def main() -> None:
         split=args.split,
         max_samples=args.max_samples,
         shuffle=False,
-        seed=42,
+        seed=int(config.get("seed", 42)),
     )
 
     output_dir = make_output_dir(args.checkpoint, args.split, args.output_dir)
