@@ -144,7 +144,7 @@ def plot_cer_distribution(evaluated_all: pd.DataFrame, output_dir: Path) -> None
     fig, ax = plt.subplots(figsize=(11, 6))
     bp = ax.boxplot(
         data,
-        labels=labels,
+        tick_labels=labels,
         patch_artist=True,
         widths=0.55,
         showfliers=False,

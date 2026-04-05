@@ -87,7 +87,8 @@ After all configured splits finish, the pipeline also writes an aggregated `over
 - `evaluated_predictions_all.csv`
 - `overall_bucket_metrics.json`
 
-You can turn those outputs into visualized figures with:
+The pipeline now also generates single-experiment PNG figures automatically under `overall_results/report_figures/`.
+If you want to regenerate them manually, use:
 
 ```bash
 python -m scripts.generate_eval_report_figures \
@@ -95,6 +96,30 @@ python -m scripts.generate_eval_report_figures \
 ```
 
 This writes PNG figures under `overall_results/report_figures/`.
+
+To regenerate both the per-experiment figures and the cross-experiment comparison figures in one step, use:
+
+```bash
+./scripts/run_report_visualization.sh \
+  base=./outputs/qwen3vl-crohme-base/overall_results \
+  lora=./outputs/qwen3vl-crohme-lora/overall_results \
+  --reference-label base
+```
+
+This writes:
+
+- per-experiment figures under each input `overall_results/report_figures/`
+- shared comparison figures under `outputs/experiment_comparisons/`
+- pairwise sample-level figures for each non-reference experiment under `outputs/experiment_comparisons/vs_<label>/`
+
+The comparison outputs currently include:
+
+- `overall_metric_comparison.png`
+- `per_split_metric_comparison.png`
+- `latency_comparison.png`
+- `vs_<label>/outcome_transition_comparison.png`
+- `vs_<label>/cer_improvement_distribution.png`
+- `vs_<label>/error_bucket_shift.png`
 
 ## Evaluate A Single Split
 

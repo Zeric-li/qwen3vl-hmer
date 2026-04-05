@@ -84,6 +84,12 @@ for EVAL_DIR in "${EVAL_DIRS[@]}"; do
 done
 "${COLLECT_CMD[@]}"
 
+if [[ "${SKIP_REPORT_FIGURES:-0}" != "1" ]]; then
+  echo "[Inference Pipeline] Generating report figures for ${OVERALL_DIR}"
+  MPLCONFIGDIR="${MPLCONFIGDIR:-/tmp/matplotlib}" \
+    python -m scripts.generate_eval_report_figures --results-dir "${OVERALL_DIR}"
+fi
+
 echo "[Inference Pipeline] Completed."
 echo "[Inference Pipeline] Outputs root: ${OUTPUT_DIR}"
 echo "[Inference Pipeline] Overall results: ${OVERALL_DIR}"
