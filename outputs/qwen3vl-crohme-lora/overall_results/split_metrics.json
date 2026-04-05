@@ -1,0 +1,32 @@
+[
+  {
+    "split": "2014",
+    "eval_dir": "/content/outputs/qwen3vl-crohme-lora/checkpoint-final/eval_2014",
+    "num_samples": 986,
+    "exact_match_rate": 0.7129817444219066,
+    "avg_cer": 0.09033473359388192,
+    "avg_edit_score": 0.929457505122367,
+    "avg_bleu4": 0.7493356751301073,
+    "avg_latency_s": 1.6668083946541283
+  },
+  {
+    "split": "2016",
+    "eval_dir": "/content/outputs/qwen3vl-crohme-lora/checkpoint-final/eval_2016",
+    "num_samples": 1147,
+    "exact_match_rate": 0.6129032258064516,
+    "avg_cer": 0.08867570256108284,
+    "avg_edit_score": 0.923982931756584,
+    "avg_bleu4": 0.7647083942529628,
+    "avg_latency_s": 1.7819081775475618
+  },
+  {
+    "split": "2019",
+    "eval_dir": "/content/outputs/qwen3vl-crohme-lora/checkpoint-final/eval_2019",
+    "num_samples": 1199,
+    "exact_match_rate": 0.6146788990825688,
+    "avg_cer": 0.09116711321385267,
+    "avg_edit_score": 0.9266709893603408,
+    "avg_bleu4": 0.766614409425089,
+    "avg_latency_s": 1.7079233256271869
+  }
+]

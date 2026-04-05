@@ -1,0 +1,14 @@
+{
+  "num_splits": 3,
+  "num_samples": 3332,
+  "evaluated_splits": [
+    "2014",
+    "2016",
+    "2019"
+  ],
+  "exact_match_rate": 0.3895558223289316,
+  "avg_cer": 0.220227613420527,
+  "avg_edit_score": 0.8244777030480059,
+  "avg_bleu4": 0.6359743489259657,
+  "avg_latency_s": 0.8255531240900339
+}

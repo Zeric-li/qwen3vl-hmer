@@ -1,0 +1,13 @@
+{
+  "reference_experiment": "base",
+  "candidate_experiment": "lora",
+  "num_samples": 3332,
+  "fixed_by_candidate": 994,
+  "regressed_after_candidate": 149,
+  "both_correct": 1149,
+  "both_wrong": 1040,
+  "avg_cer_improvement": 0.13016445408543126,
+  "median_cer_improvement": 0.0,
+  "candidate_win_rate_on_cer": 0.4774909963985594,
+  "candidate_loss_rate_on_cer": 0.09573829531812725
+}

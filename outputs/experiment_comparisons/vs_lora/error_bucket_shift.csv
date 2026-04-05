@@ -1,0 +1,9 @@
+error_bucket,count_base,count_lora,delta_lora_minus_base
+fraction_root,716,380,-336
+sum_integral_limit,398,212,-186
+dense_script_structure,459,307,-152
+general_transcription_error,187,104,-83
+short_symbol_confusion,172,128,-44
+greek_or_font_confusion,72,46,-26
+long_expression,30,12,-18
+exact_match,1298,2143,845

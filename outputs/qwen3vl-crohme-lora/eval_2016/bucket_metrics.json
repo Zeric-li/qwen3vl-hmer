@@ -1,0 +1,58 @@
+[
+  {
+    "error_bucket": "exact_match",
+    "count": 703,
+    "exact_match_rate": 1.0,
+    "avg_cer": 0.0,
+    "avg_bleu4": 0.8620199146514936
+  },
+  {
+    "error_bucket": "fraction_root",
+    "count": 157,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.11902412397036194,
+    "avg_bleu4": 0.7461379731046835
+  },
+  {
+    "error_bucket": "dense_script_structure",
+    "count": 108,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.2719634239782075,
+    "avg_bleu4": 0.6338051097276014
+  },
+  {
+    "error_bucket": "sum_integral_limit",
+    "count": 85,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.20835991126132658,
+    "avg_bleu4": 0.5944252466830998
+  },
+  {
+    "error_bucket": "short_symbol_confusion",
+    "count": 38,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.4908521303258146,
+    "avg_bleu4": 0.16683563615943472
+  },
+  {
+    "error_bucket": "general_transcription_error",
+    "count": 37,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.3002721458092302,
+    "avg_bleu4": 0.45929701898687925
+  },
+  {
+    "error_bucket": "greek_or_font_confusion",
+    "count": 16,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.36731453802188496,
+    "avg_bleu4": 0.5765918807000694
+  },
+  {
+    "error_bucket": "long_expression",
+    "count": 3,
+    "exact_match_rate": 0.0,
+    "avg_cer": 0.10070605722779635,
+    "avg_bleu4": 0.8135182147648053
+  }
+]

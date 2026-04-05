@@ -1,0 +1,32 @@
+[
+  {
+    "split": "2014",
+    "eval_dir": "/content/outputs/qwen3vl-crohme-base/base_model_eval_2014",
+    "num_samples": 986,
+    "exact_match_rate": 0.4077079107505071,
+    "avg_cer": 0.22695112042531562,
+    "avg_edit_score": 0.8235763573803182,
+    "avg_bleu4": 0.6233562923850247,
+    "avg_latency_s": 0.7993886203255586
+  },
+  {
+    "split": "2016",
+    "eval_dir": "/content/outputs/qwen3vl-crohme-base/base_model_eval_2016",
+    "num_samples": 1147,
+    "exact_match_rate": 0.36704446381865735,
+    "avg_cer": 0.2328870325735603,
+    "avg_edit_score": 0.8206724406844724,
+    "avg_bleu4": 0.6426401380908453,
+    "avg_latency_s": 0.8512808354550996
+  },
+  {
+    "split": "2019",
+    "eval_dir": "/content/outputs/qwen3vl-crohme-base/base_model_eval_2019",
+    "num_samples": 1199,
+    "exact_match_rate": 0.396163469557965,
+    "avg_cer": 0.2025881374611852,
+    "avg_edit_score": 0.8288591565586925,
+    "avg_bleu4": 0.6399741350621216,
+    "avg_latency_s": 0.8224576410008282
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "dataset_id": "Neeze/CROHME-full",
+  "split": "2016",
+  "num_samples": 1147,
+  "avg_latency_s": 1.7819081775475618
+}
