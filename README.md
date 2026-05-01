@@ -1,19 +1,6 @@
-# Qwen-VL HME LoRA MVP
+# Language-Side LoRA Adaptation of Qwen3-VL for Handwritten Mathematical Expression Recognition
 
-A minimal pure-Python project for supervised LoRA fine-tuning of Qwen VL models on handwritten mathematical expression (HME) transcription.
-
-## Scope
-
-This project is intentionally small and direct:
-
-- one evaluation script
-- one training script
-- one error-analysis script
-- one simple visualization script
-- explicit normalization and evaluator modules
-
-The default dataset target is `Neeze/CROHME-full` from Hugging Face.
-The current training and inference backend supports `Qwen2-VL`, `Qwen2.5-VL`, and `Qwen3-VL` model IDs.
+A Python project for supervised LoRA fine-tuning of Qwen VL models on handwritten mathematical expression (HME) transcription.
 
 ## Install
 
