@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 OVERALL_COLOR = "#a8b5c0"
+FIGURE_FORMATS = ("png", "pdf", "svg")
 
 
 def _get_plt():
@@ -18,6 +19,9 @@ def _get_plt():
         {
             "figure.dpi": 150,
             "savefig.dpi": 200,
+            "pdf.fonttype": 42,
+            "ps.fonttype": 42,
+            "svg.fonttype": "none",
             "font.size": 11,
             "axes.titlesize": 14,
             "axes.labelsize": 11,
@@ -26,6 +30,11 @@ def _get_plt():
         }
     )
     return plt
+
+
+def _save_figure(fig, output_dir: Path, stem: str) -> None:
+    for figure_format in FIGURE_FORMATS:
+        fig.savefig(output_dir / f"{stem}.{figure_format}", bbox_inches="tight")
 
 
 def parse_args() -> argparse.Namespace:
@@ -113,7 +122,7 @@ def plot_split_metric_bars(split_metrics: pd.DataFrame, output_dir: Path) -> Non
             ax.text(x, y, f"{y:.3f}", ha="center", va="bottom", fontsize=9)
 
     fig.tight_layout()
-    fig.savefig(output_dir / "per_split_metrics.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "per_split_metrics")
     plt.close(fig)
 
 
@@ -130,7 +139,7 @@ def plot_error_bucket_profile(bucket_metrics: pd.DataFrame, output_dir: Path) ->
         ax.text(value, y, f" {int(value)}", va="center", fontsize=9)
 
     fig.tight_layout()
-    fig.savefig(output_dir / "error_bucket_profile.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "error_bucket_profile")
     plt.close(fig)
 
 
@@ -164,7 +173,7 @@ def plot_cer_distribution(evaluated_all: pd.DataFrame, output_dir: Path) -> None
     _style_axes(ax)
 
     fig.tight_layout()
-    fig.savefig(output_dir / "cer_distribution.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "cer_distribution")
     plt.close(fig)
 
 

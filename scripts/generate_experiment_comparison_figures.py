@@ -25,6 +25,15 @@ OUTCOME_COLORS = {
     "regressed_after_candidate": "#bc4749",
     "both_wrong": "#b8c0c8",
 }
+FIGURE_FORMATS = ("png", "pdf", "svg")
+DISPLAY_LABELS = {
+    "base": "Base Qwen3-VL",
+    "lora": "Adapted Qwen3-VL",
+}
+
+
+def display_label(label: str) -> str:
+    return DISPLAY_LABELS.get(label, label)
 
 
 def _get_plt():
@@ -37,6 +46,9 @@ def _get_plt():
         {
             "figure.dpi": 150,
             "savefig.dpi": 220,
+            "pdf.fonttype": 42,
+            "ps.fonttype": 42,
+            "svg.fonttype": "none",
             "font.size": 11,
             "axes.titlesize": 14,
             "axes.labelsize": 11,
@@ -45,6 +57,11 @@ def _get_plt():
         }
     )
     return plt
+
+
+def _save_figure(fig, output_dir: Path, stem: str) -> None:
+    for figure_format in FIGURE_FORMATS:
+        fig.savefig(output_dir / f"{stem}.{figure_format}", bbox_inches="tight")
 
 
 def parse_args() -> argparse.Namespace:
@@ -254,41 +271,46 @@ def plot_overall_metric_comparison(metric_table: pd.DataFrame, labels: list[str]
     overall = metric_table[metric_table["split"] == "Overall"].copy()
     overall = overall.set_index("experiment").loc[labels].reset_index()
 
-    fig, ax = plt.subplots(figsize=(10.5, 5.8))
-    fig.suptitle("Overall Experiment Comparison", fontweight="bold", y=0.98)
+    fig, ax = plt.subplots(figsize=(3.45, 2.85))
+    fig.suptitle("Overall Recognition Metrics", fontsize=9, fontweight="bold", y=0.985)
 
     x_positions = list(range(len(QUALITY_METRICS)))
-    width = min(0.8 / max(len(labels), 1), 0.25)
+    width = min(0.68 / max(len(labels), 1), 0.22)
     center_offset = (len(labels) - 1) / 2
     for idx, label in enumerate(labels):
         offsets = [x + (idx - center_offset) * width for x in x_positions]
         values = [float(overall.loc[overall["experiment"] == label, metric].iloc[0]) for metric, _, _ in QUALITY_METRICS]
         ax.bar(offsets, values, width=width, color=color_map[label], alpha=0.9)
         for x, y in zip(offsets, values):
-            ax.text(x, y + 0.012, f"{y:.3f}", ha="center", va="bottom", fontsize=9)
+            ax.text(x, y + 0.012, f"{y:.2f}", ha="center", va="bottom", fontsize=6.3)
 
     ax.set_xticks(x_positions, [metric_label for _, metric_label, _ in QUALITY_METRICS])
-    ax.set_ylim(0.0, 1.08)
-    ax.set_ylabel("Score")
-    ax.set_title("Quality Metrics")
+    ax.set_xlim(-0.42, len(QUALITY_METRICS) - 0.58)
+    ax.set_ylim(0.0, 1.13)
+    ax.set_ylabel("Score", fontsize=8)
+    ax.tick_params(axis="both", labelsize=7)
     _style_axes(ax)
     handles = [plt.Rectangle((0, 0), 1, 1, color=color_map[label], alpha=0.9) for label in labels]
     legend = fig.legend(
         handles,
-        labels,
-        loc="upper right",
-        bbox_to_anchor=(0.985, 0.94),
+        [display_label(label) for label in labels],
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.885),
         frameon=True,
-        ncol=1,
-        title="Experiments",
+        ncol=len(labels),
+        fontsize=6.6,
         fancybox=False,
+        borderpad=0.2,
+        handlelength=1.0,
+        handletextpad=0.3,
+        columnspacing=0.55,
     )
     legend.get_frame().set_edgecolor("#7a8793")
-    legend.get_frame().set_linewidth(0.8)
-    legend.get_frame().set_alpha(0.96)
+    legend.get_frame().set_linewidth(0.6)
+    legend.get_frame().set_alpha(0.92)
 
-    fig.tight_layout(rect=(0, 0, 0.98, 0.94))
-    fig.savefig(output_dir / "overall_metric_comparison.png", bbox_inches="tight")
+    fig.tight_layout(rect=(0, 0, 1, 0.83), pad=0.35)
+    _save_figure(fig, output_dir, "overall_metric_comparison")
     plt.close(fig)
 
 
@@ -301,7 +323,13 @@ def plot_latency_comparison(metric_table: pd.DataFrame, labels: list[str], color
     overall = metric_table[metric_table["split"] == "Overall"].copy()
     overall = overall.set_index("experiment").loc[labels].reset_index()
     latency_values = [float(overall.loc[overall["experiment"] == label, "avg_latency_s"].iloc[0]) for label in labels]
-    bars = axes[0].bar(labels, latency_values, color=[color_map[label] for label in labels], alpha=0.9, width=0.6)
+    bars = axes[0].bar(
+        [display_label(label) for label in labels],
+        latency_values,
+        color=[color_map[label] for label in labels],
+        alpha=0.9,
+        width=0.6,
+    )
     for bar, value in zip(bars, latency_values):
         axes[0].text(bar.get_x() + bar.get_width() / 2, value + 0.03, f"{value:.3f}s", ha="center", va="bottom", fontsize=9)
     axes[0].set_title("Overall Average Latency")
@@ -331,7 +359,7 @@ def plot_latency_comparison(metric_table: pd.DataFrame, labels: list[str], color
     handles = [plt.Rectangle((0, 0), 1, 1, color=color_map[label], alpha=0.9) for label in labels]
     legend = fig.legend(
         handles,
-        labels,
+        [display_label(label) for label in labels],
         loc="upper right",
         bbox_to_anchor=(0.985, 0.955),
         frameon=True,
@@ -344,17 +372,17 @@ def plot_latency_comparison(metric_table: pd.DataFrame, labels: list[str], color
     legend.get_frame().set_alpha(0.96)
 
     fig.tight_layout(rect=(0, 0, 0.98, 0.94))
-    fig.savefig(output_dir / "latency_comparison.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "latency_comparison")
     plt.close(fig)
 
 
 def plot_split_metric_comparison(metric_table: pd.DataFrame, labels: list[str], color_map: dict[str, str], output_dir: Path) -> None:
     plt = _get_plt()
     split_order = [str(item) for item in metric_table["split"].cat.categories]
-    fig, axes = plt.subplots(2, 2, figsize=(13, 8.5))
-    fig.suptitle("Per-Split Comparison", fontweight="bold", y=0.98)
+    fig, axes = plt.subplots(2, 2, figsize=(7.0, 4.65))
+    fig.suptitle("Per-Split Comparison", fontsize=8.5, fontweight="bold", y=0.985)
 
-    width = min(0.8 / max(len(labels), 1), 0.25)
+    width = min(0.72 / max(len(labels), 1), 0.22)
     x_positions = list(range(len(split_order)))
     center_offset = (len(labels) - 1) / 2
     for ax, (metric_key, metric_label, bounded_to_one) in zip(axes.flat, QUALITY_METRICS):
@@ -375,31 +403,43 @@ def plot_split_metric_comparison(metric_table: pd.DataFrame, labels: list[str], 
                 alpha=0.9,
             )
             for x, y in zip(offsets, values):
-                ax.text(x, y + (0.012 if bounded_to_one else 0.008), f"{y:.3f}", ha="center", va="bottom", fontsize=8)
+                ax.text(
+                    x,
+                    y + (0.012 if bounded_to_one else 0.006),
+                    f"{y:.3f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=5.1,
+                )
 
-        ax.set_title(metric_label)
+        ax.set_title(metric_label, fontsize=7.1, pad=3)
         ax.set_xticks(x_positions, split_order)
-        ax.set_xlabel("Split")
+        ax.tick_params(axis="both", labelsize=5.6)
         ax.set_ylim(0.0, 1.05 if bounded_to_one else max(0.3, float(metric_table[metric_key].max()) * 1.12))
         _style_axes(ax)
 
     handles = [plt.Rectangle((0, 0), 1, 1, color=color_map[label], alpha=0.9) for label in labels]
     legend = fig.legend(
         handles,
-        labels,
+        [display_label(label) for label in labels],
         loc="upper right",
-        bbox_to_anchor=(0.985, 0.965),
+        bbox_to_anchor=(0.986, 0.955),
         frameon=True,
         ncol=1,
         title="Experiments",
+        fontsize=5.5,
+        title_fontsize=6.0,
         fancybox=False,
+        borderpad=0.3,
+        labelspacing=0.35,
+        handlelength=1.4,
     )
     legend.get_frame().set_edgecolor("#7a8793")
-    legend.get_frame().set_linewidth(0.8)
+    legend.get_frame().set_linewidth(0.6)
     legend.get_frame().set_alpha(0.96)
 
-    fig.tight_layout(rect=(0, 0, 0.98, 0.94))
-    fig.savefig(output_dir / "per_split_metric_comparison.png", bbox_inches="tight")
+    fig.tight_layout(rect=(0, 0, 0.97, 0.935), h_pad=1.0, w_pad=1.0)
+    _save_figure(fig, output_dir, "per_split_metric_comparison")
     plt.close(fig)
 
 
@@ -426,7 +466,10 @@ def plot_outcome_transition(outcome_table: pd.DataFrame, reference_label: str, c
     ax.set_ylim(0.0, 1.0)
     ax.set_ylabel("Share of Samples")
     ax.set_xlabel("Split")
-    ax.set_title(f"Outcome Transition: {reference_label} -> {candidate_label}", fontweight="bold")
+    ax.set_title(
+        f"Outcome Transition: {display_label(reference_label)} -> {display_label(candidate_label)}",
+        fontweight="bold",
+    )
     _style_axes(ax)
     ax.legend(frameon=False, ncol=2, loc="upper center", bbox_to_anchor=(0.5, -0.12))
 
@@ -444,7 +487,7 @@ def plot_outcome_transition(outcome_table: pd.DataFrame, reference_label: str, c
         )
 
     fig.tight_layout(rect=(0, 0.06, 1, 0.96))
-    fig.savefig(output_dir / "outcome_transition_comparison.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "outcome_transition_comparison")
     plt.close(fig)
 
 
@@ -470,13 +513,13 @@ def plot_cer_improvement_distribution(pairwise_df: pd.DataFrame, candidate_label
         patch.set_alpha(0.65)
 
     ax.axhline(0.0, color="#bc4749", linestyle="--", linewidth=1.2)
-    ax.set_title(f"CER Improvement Distribution of {candidate_label}", fontweight="bold")
+    ax.set_title(f"CER Improvement Distribution of {display_label(candidate_label)}", fontweight="bold")
     ax.set_xlabel("Split")
     ax.set_ylabel("CER(reference) - CER(candidate)")
     _style_axes(ax)
 
     fig.tight_layout()
-    fig.savefig(output_dir / "cer_improvement_distribution.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "cer_improvement_distribution")
     plt.close(fig)
 
 
@@ -493,7 +536,10 @@ def plot_error_bucket_shift(bucket_shift_table: pd.DataFrame, reference_label: s
         colors.append("#43aa8b" if is_good_shift else "#bc4749")
     ax.barh(bucket_shift_table["error_bucket"], bucket_shift_table[delta_column], color=colors, alpha=0.9)
     ax.axvline(0.0, color="#3f4e5a", linewidth=1.1)
-    ax.set_title(f"Error Bucket Count Shift: {candidate_label} - {reference_label}", fontweight="bold")
+    ax.set_title(
+        f"Error Bucket Count Shift: {display_label(candidate_label)} - {display_label(reference_label)}",
+        fontweight="bold",
+    )
     ax.set_xlabel("Count Delta")
     _style_horizontal_axes(ax)
 
@@ -503,7 +549,7 @@ def plot_error_bucket_shift(bucket_shift_table: pd.DataFrame, reference_label: s
         ax.text(value + offset, y, f"{int(value):+d}", va="center", ha=ha, fontsize=9)
 
     fig.tight_layout()
-    fig.savefig(output_dir / "error_bucket_shift.png", bbox_inches="tight")
+    _save_figure(fig, output_dir, "error_bucket_shift")
     plt.close(fig)
 
 
